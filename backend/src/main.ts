@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { apiKeyMiddleware } from './shared/middleware/api-key.middleware';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -19,6 +20,8 @@ async function bootstrap() {
   SwaggerModule.setup('api/docs', app, SwaggerModule.createDocument(app, config), {
     swaggerOptions: { persistAuthorization: true },
   });
+
+  app.use(apiKeyMiddleware);
 
   await app.listen(process.env.PORT ?? 3001, '0.0.0.0');
 }
