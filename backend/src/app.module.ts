@@ -32,7 +32,7 @@ export class AppModule implements NestModule {
       .apply(ApiKeyMiddleware)
       .exclude(
         { path: 'auth/(.*)', method: RequestMethod.ALL },
-        { path: 'health', method: RequestMethod.GET },
+        { path: 'api/health', method: RequestMethod.GET },
       )
       .forRoutes('*');
   }
