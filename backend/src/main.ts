@@ -11,8 +11,12 @@ async function bootstrap() {
     .setTitle('Sistema de Provas')
     .setDescription('API for managing students, classes, goals, evaluations and email digests')
     .setVersion('1.0')
+    .addApiKey({ type: 'apiKey', in: 'header', name: 'x-api-key' }, 'api-key')
+    .addSecurityRequirements('api-key')
     .build();
-  SwaggerModule.setup('api/docs', app, SwaggerModule.createDocument(app, config));
+  SwaggerModule.setup('api/docs', app, SwaggerModule.createDocument(app, config), {
+    swaggerOptions: { persistAuthorization: true },
+  });
 
   await app.listen(process.env.PORT ?? 3001);
 }
