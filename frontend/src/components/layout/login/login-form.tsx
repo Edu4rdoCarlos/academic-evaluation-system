@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Lock, Mail } from 'lucide-react';
 import { useAuth } from '@/components/providers/AuthProvider';
+import { loginApi } from '@/lib/api/auth';
 import { Button } from '@/components/primitives/button';
 import { Input } from '@/components/primitives/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/primitives/card';
@@ -22,6 +23,7 @@ export function LoginForm() {
   const router = useRouter();
   const { login } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
 
   const {
     register,
@@ -31,13 +33,16 @@ export function LoginForm() {
 
   async function onSubmit(data: LoginInput) {
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 600));
-    const name = data.email.split('@')[0]
-      .split('.')
-      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-      .join(' ');
-    login({ name, email: data.email });
-    router.replace('/dashboard');
+    setServerError(null);
+    try {
+      const { accessToken } = await loginApi(data.email, data.password);
+      login(accessToken);
+      router.replace('/dashboard');
+    } catch (err) {
+      setServerError(err instanceof Error ? err.message : 'Erro ao autenticar');
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -86,6 +91,10 @@ export function LoginForm() {
             )}
           </div>
 
+          {serverError && (
+            <p className="text-xs text-destructive text-center">{serverError}</p>
+          )}
+
           <Button
             type="submit"
             className="w-full h-11 bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg shadow-blue-500/30 transition-all cursor-pointer"
@@ -101,13 +110,6 @@ export function LoginForm() {
             )}
           </Button>
         </form>
-
-        <div className="mt-5 rounded-lg bg-blue-50/50 dark:bg-blue-950/30 p-4 border border-blue-200/50 dark:border-blue-800/50">
-          <p className="text-xs text-blue-900 dark:text-blue-100">
-            <strong>Acesso local:</strong> Use qualquer email e senha para entrar. A proteção real
-            é feita pela API key no backend.
-          </p>
-        </div>
       </CardContent>
     </Card>
   );
