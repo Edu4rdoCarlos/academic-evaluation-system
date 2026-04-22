@@ -1,0 +1,12 @@
+node_modules
+backend/dist
+backend/node_modules
+database/node_modules
+database/src/generated
+frontend
+.git
+.gitignore
+*.md
+docker-compose.yml
+.env
+.env.*
