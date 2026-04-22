@@ -1,0 +1,136 @@
+generator client {
+  provider        = "prisma-client-js"
+  output          = "../node_modules/.prisma/client"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [pgcrypto]
+}
+
+enum EvaluationConcept {
+  MANA
+  MPA
+  MA
+}
+
+model Student {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String   @db.VarChar(255)
+  cpf       String   @unique @db.VarChar(14)
+  email     String   @unique @db.VarChar(255)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  enrollments       ClassEnrollment[]
+  evaluations       Evaluation[]
+  evaluationChanges EvaluationChangeLog[]
+  emailDigests      DailyEmailDigest[]
+
+  @@map("students")
+}
+
+model Class {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  topic     String   @db.VarChar(255)
+  year      Int
+  semester  Int
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  enrollments       ClassEnrollment[]
+  evaluations       Evaluation[]
+  evaluationChanges EvaluationChangeLog[]
+
+  @@map("classes")
+}
+
+model Goal {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String   @unique @db.VarChar(100)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  evaluations       Evaluation[]
+  evaluationChanges EvaluationChangeLog[]
+
+  @@map("goals")
+}
+
+model ClassEnrollment {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  classId    String   @map("class_id") @db.Uuid
+  studentId  String   @map("student_id") @db.Uuid
+  enrolledAt DateTime @default(now()) @map("enrolled_at")
+
+  class   Class   @relation(fields: [classId], references: [id], onDelete: Cascade)
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([classId, studentId])
+  @@map("class_enrollments")
+}
+
+model Evaluation {
+  id        String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  classId   String            @map("class_id") @db.Uuid
+  studentId String            @map("student_id") @db.Uuid
+  goalId    String            @map("goal_id") @db.Uuid
+  concept   EvaluationConcept
+  createdAt DateTime          @default(now()) @map("created_at")
+  updatedAt DateTime          @updatedAt @map("updated_at")
+
+  class   Class   @relation(fields: [classId], references: [id], onDelete: Cascade)
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  goal    Goal    @relation(fields: [goalId], references: [id], onDelete: Restrict)
+
+  changeLogs EvaluationChangeLog[]
+
+  @@unique([classId, studentId, goalId])
+  @@map("evaluations")
+}
+
+model EvaluationChangeLog {
+  id           String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  evaluationId String             @map("evaluation_id") @db.Uuid
+  studentId    String             @map("student_id") @db.Uuid
+  classId      String             @map("class_id") @db.Uuid
+  goalId       String             @map("goal_id") @db.Uuid
+  oldConcept   EvaluationConcept? @map("old_concept")
+  newConcept   EvaluationConcept  @map("new_concept")
+  changedAt    DateTime           @default(now()) @map("changed_at")
+
+  evaluation  Evaluation           @relation(fields: [evaluationId], references: [id], onDelete: Cascade)
+  student     Student              @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  class       Class                @relation(fields: [classId], references: [id], onDelete: Cascade)
+  goal        Goal                 @relation(fields: [goalId], references: [id], onDelete: Restrict)
+  digestItems DailyEmailDigestItem[]
+
+  @@map("evaluation_change_log")
+}
+
+model DailyEmailDigest {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  studentId  String    @map("student_id") @db.Uuid
+  digestDate DateTime  @map("digest_date") @db.Date
+  sentAt     DateTime? @map("sent_at")
+  status     String    @default("pending") @db.VarChar(30)
+
+  student Student              @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  items   DailyEmailDigestItem[]
+
+  @@unique([studentId, digestDate])
+  @@map("daily_email_digests")
+}
+
+model DailyEmailDigestItem {
+  id          String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  digestId    String @map("digest_id") @db.Uuid
+  changeLogId String @map("change_log_id") @db.Uuid
+
+  digest    DailyEmailDigest    @relation(fields: [digestId], references: [id], onDelete: Cascade)
+  changeLog EvaluationChangeLog @relation(fields: [changeLogId], references: [id], onDelete: Cascade)
+
+  @@unique([digestId, changeLogId])
+  @@map("daily_email_digest_items")
+}
