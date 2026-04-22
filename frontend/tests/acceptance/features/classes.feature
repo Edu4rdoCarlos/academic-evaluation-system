@@ -1,3 +1,4 @@
+@classes
 Feature: Class Management
   As an administrator
   I want to manage classes

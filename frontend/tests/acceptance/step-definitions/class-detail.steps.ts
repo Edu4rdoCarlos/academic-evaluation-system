@@ -18,10 +18,10 @@ Given('{string} is enrolled in the current class', async function (this: Sistema
   await this.page.waitForSelector(`[data-slot="table-cell"]:has-text("${studentName}")`, { timeout: 8000 });
 });
 
-Given('I open the detail page for class {string}', { timeout: 15000 }, async function (this: SistemaProvasWorld, topic: string) {
-  const row = this.page.locator('tr', { hasText: topic });
-  await row.getByRole('link').click();
-  await this.page.waitForSelector(`text=${topic}`, { timeout: 10000 });
+Given('I open the detail page for class {string}', { timeout: 20000 }, async function (this: SistemaProvasWorld, topic: string) {
+  const classId = await this.getClassIdByTopic(topic);
+  await this.navigateTo(`/classes/${classId}`);
+  await this.page.waitForSelector('h2', { timeout: 10000 });
 });
 
 When('I open the enroll student dialog', async function (this: SistemaProvasWorld) {

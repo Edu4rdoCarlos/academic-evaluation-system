@@ -1,4 +1,4 @@
-import { When, Then } from '@cucumber/cucumber';
+import { When, Then, After } from '@cucumber/cucumber';
 import assert from 'assert';
 import { SistemaProvasWorld } from '../support/world';
 
@@ -46,4 +46,16 @@ Then('I should not see {string} in the classes table', { timeout: 10000 }, async
   await this.page.waitForTimeout(1000);
   const count = await this.page.locator('td', { hasText: topic }).count();
   assert.strictEqual(count, 0, `Expected "${topic}" to be absent from the classes table`);
+});
+
+const TEST_CLASS_TOPICS = ['Turma Cucumber Teste', 'Turma Para Editar', 'Turma Editada', 'Turma Para Deletar'];
+
+After({ tags: '@classes' }, async function (this: SistemaProvasWorld) {
+  const res = await this.apiRequest('GET', '/classes?page=1&perPage=200');
+  const data = await res.json() as { data: Array<{ id: string; topic: string }> };
+  for (const cls of data.data) {
+    if (TEST_CLASS_TOPICS.includes(cls.topic)) {
+      await this.apiRequest('DELETE', `/classes/${cls.id}`);
+    }
+  }
 });

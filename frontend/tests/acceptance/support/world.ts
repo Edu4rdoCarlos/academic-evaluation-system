@@ -72,6 +72,14 @@ export class SistemaProvasWorld extends World {
     if (!student) throw new Error(`Student "${name}" not found`);
     return student.id;
   }
+
+  async getClassIdByTopic(topic: string): Promise<string> {
+    const res = await this.apiRequest('GET', '/classes?page=1&perPage=200');
+    const data = await res.json() as { data: Array<{ id: string; topic: string }> };
+    const cls = data.data.find((c) => c.topic === topic);
+    if (!cls) throw new Error(`Class "${topic}" not found`);
+    return cls.id;
+  }
 }
 
 setWorldConstructor(SistemaProvasWorld);

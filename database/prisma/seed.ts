@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "../src/generated/client";
 
 type EvaluationConcept = "MA" | "MPA" | "MANA";
 import { hashSync } from "bcryptjs";
