@@ -10,6 +10,23 @@ datasource db {
   extensions = [pgcrypto]
 }
 
+enum UserRole {
+  ADMIN
+  TEACHER
+}
+
+model User {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name         String   @db.VarChar(255)
+  email        String   @unique @db.VarChar(255)
+  passwordHash String   @map("password_hash") @db.VarChar(255)
+  role         UserRole @default(TEACHER)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
 enum EvaluationConcept {
   MANA
   MPA
