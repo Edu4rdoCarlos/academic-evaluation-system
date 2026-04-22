@@ -6,6 +6,9 @@ Criar commits atômicos, descritivos e rastreáveis.
 
 ## Regras
 
+* **Nunca executar `git commit` sem aprovação explícita do usuário**
+* Antes de commitar: mostrar o diff e a mensagem proposta e aguardar confirmação
+* Só prosseguir após o usuário responder com "sim", "ok", "pode commitar" ou equivalente
 * Um commit por mudança lógica
 * Mensagem em inglês, no imperativo
 * Sem co-author
