@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { AppModule } from '../../src/app.module';
 import { PrismaService } from '../../src/prisma/prisma.service';
 import { EmailService } from '../../src/email/email.service';
@@ -7,6 +8,7 @@ import { EmailService } from '../../src/email/email.service';
 export interface TestApp {
   app: INestApplication;
   prisma: PrismaService;
+  authToken: string;
   emailMock: jest.Mocked<Pick<EmailService, 'send'>>;
 }
 
@@ -22,11 +24,19 @@ export async function createTestApp(): Promise<TestApp> {
 
   const app = module.createNestApplication();
   app.setGlobalPrefix('api');
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }));
   await app.init();
 
   const prisma = module.get(PrismaService);
+  const jwtService = module.get(JwtService);
 
-  return { app, prisma, emailMock };
+  const authToken = jwtService.sign({
+    sub: '00000000-0000-0000-0000-000000000001',
+    name: 'Test User',
+    email: 'test@test.com',
+  });
+
+  return { app, prisma, authToken, emailMock };
 }
 
 export async function cleanDatabase(prisma: PrismaService): Promise<void> {
@@ -39,5 +49,6 @@ export async function cleanDatabase(prisma: PrismaService): Promise<void> {
     prisma.class.deleteMany(),
     prisma.student.deleteMany(),
     prisma.goal.deleteMany(),
+    prisma.user.deleteMany(),
   ]);
 }

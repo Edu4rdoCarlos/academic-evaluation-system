@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './prisma/prisma.module';
 import { StudentsModule } from './students/students.module';
@@ -6,6 +6,7 @@ import { ClassesModule } from './classes/classes.module';
 import { GoalsModule } from './goals/goals.module';
 import { EvaluationsModule } from './evaluations/evaluations.module';
 import { EmailDigestModule } from './email-digest/email-digest.module';
+import { AuthModule } from './auth/auth.module';
 import { ApiKeyMiddleware } from './shared/middleware/api-key.middleware';
 
 @Module({
@@ -20,10 +21,14 @@ import { ApiKeyMiddleware } from './shared/middleware/api-key.middleware';
     GoalsModule,
     EvaluationsModule,
     EmailDigestModule,
+    AuthModule,
   ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {
-    consumer.apply(ApiKeyMiddleware).forRoutes('*');
+    consumer
+      .apply(ApiKeyMiddleware)
+      .exclude({ path: 'auth/(.*)', method: RequestMethod.ALL })
+      .forRoutes('*');
   }
 }
