@@ -12,7 +12,7 @@ export class ApiKeyMiddleware implements NestMiddleware {
   constructor(private readonly config: ConfigService) {}
 
   use(req: Request, _res: Response, next: NextFunction): void {
-    if (isLocalhost(req)) {
+    if (isLocalhost(req) || req.path === '/api/health') {
       return next();
     }
 
