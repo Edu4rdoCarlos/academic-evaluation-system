@@ -1,0 +1,5 @@
+{
+  "name": "sistema-provas",
+  "private": true,
+  "workspaces": ["database", "backend", "frontend"]
+}
