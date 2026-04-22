@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Users, BookOpen, ClipboardList, ChevronLeft, ChevronRight } from "lucide-react";
-import { useSidebar } from "@/lib/contexts/sidebar-context";
-import { cn } from "@/lib/utils/cn";
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { Users, BookOpen, Target, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useSidebar } from '@/lib/contexts/sidebar-context';
+import { cn } from '@/lib/utils/cn';
 
 const navItems = [
-  { href: "/students", label: "Alunos", icon: Users },
-  { href: "/classes", label: "Turmas", icon: BookOpen },
-  { href: "/evaluations", label: "Avaliações", icon: ClipboardList },
+  { href: '/students', label: 'Alunos', icon: Users },
+  { href: '/classes', label: 'Turmas', icon: BookOpen },
+  { href: '/goals', label: 'Objetivos', icon: Target },
 ];
 
 export function AppSidebar() {
@@ -19,8 +19,8 @@ export function AppSidebar() {
   return (
     <aside
       className={cn(
-        "fixed inset-y-0 left-0 z-50 flex flex-col border-r bg-sidebar transition-all duration-300",
-        isCollapsed ? "w-16" : "w-64"
+        'fixed inset-y-0 left-0 z-50 flex flex-col border-r bg-sidebar transition-all duration-300',
+        isCollapsed ? 'w-16' : 'w-64'
       )}
     >
       <div className="flex h-16 items-center justify-between px-4 border-b">
@@ -38,10 +38,10 @@ export function AppSidebar() {
             key={href}
             href={href}
             className={cn(
-              "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
+              'flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors',
               pathname.startsWith(href)
-                ? "bg-primary text-primary-foreground"
-                : "text-sidebar-foreground hover:bg-accent"
+                ? 'bg-sidebar-primary text-sidebar-primary-foreground'
+                : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
             )}
           >
             <Icon size={16} className="shrink-0" />

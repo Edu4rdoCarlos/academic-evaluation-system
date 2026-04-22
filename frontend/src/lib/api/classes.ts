@@ -1,33 +1,35 @@
-import type { Class } from "@/lib/types";
-import type { CreateClassInput, UpdateClassInput } from "@/lib/validations/class";
+import { get, getPaginated, post, put, del } from './client';
+import type { Class, ClassWithEnrollments, ClassEnrollment, PaginatedResponse } from '@/lib/types';
+import type { CreateClassInput, UpdateClassInput } from '@/lib/validations/class';
 
-const BASE = "/api/classes";
-
-export async function fetchClasses(): Promise<Class[]> {
-  const res = await fetch(BASE);
-  if (!res.ok) throw new Error("Failed to fetch classes");
-  return res.json();
+export function fetchClasses(page = 1, perPage = 20): Promise<PaginatedResponse<Class>> {
+  return getPaginated(`/classes?page=${page}&perPage=${perPage}`);
 }
 
-export async function fetchClass(id: string): Promise<Class> {
-  const res = await fetch(`${BASE}/${id}`);
-  if (!res.ok) throw new Error("Failed to fetch class");
-  return res.json();
+export function fetchClass(id: string): Promise<Class> {
+  return get(`/classes/${id}`);
 }
 
-export async function createClass(data: CreateClassInput): Promise<Class> {
-  const res = await fetch(BASE, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
-  if (!res.ok) throw new Error("Failed to create class");
-  return res.json();
+export function fetchClassWithStudents(id: string): Promise<ClassWithEnrollments> {
+  return get(`/classes/${id}/students`);
 }
 
-export async function updateClass(id: string, data: UpdateClassInput): Promise<Class> {
-  const res = await fetch(`${BASE}/${id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
-  if (!res.ok) throw new Error("Failed to update class");
-  return res.json();
+export function createClass(data: CreateClassInput): Promise<Class> {
+  return post('/classes', data);
 }
 
-export async function deleteClass(id: string): Promise<void> {
-  const res = await fetch(`${BASE}/${id}`, { method: "DELETE" });
-  if (!res.ok) throw new Error("Failed to delete class");
+export function updateClass(id: string, data: UpdateClassInput): Promise<Class> {
+  return put(`/classes/${id}`, data);
+}
+
+export function deleteClass(id: string): Promise<Class> {
+  return del(`/classes/${id}`);
+}
+
+export function enrollStudent(classId: string, studentId: string): Promise<ClassEnrollment> {
+  return post(`/classes/${classId}/enrollments`, { studentId });
+}
+
+export function unenrollStudent(classId: string, studentId: string): Promise<ClassEnrollment> {
+  return del(`/classes/${classId}/enrollments/${studentId}`);
 }

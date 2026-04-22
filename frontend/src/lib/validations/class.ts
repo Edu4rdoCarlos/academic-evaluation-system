@@ -1,10 +1,9 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 export const createClassSchema = z.object({
-  topic: z.string().min(1),
-  year: z.number().int().min(2000),
+  topic: z.string().min(1, 'Tópico é obrigatório'),
+  year: z.number().int().min(1900),
   semester: z.union([z.literal(1), z.literal(2)]),
-  studentIds: z.array(z.string()).default([]),
 });
 
 export const updateClassSchema = createClassSchema.partial();
