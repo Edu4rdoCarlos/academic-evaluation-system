@@ -4,3 +4,4 @@
 **/.env
 *.local
 database/prisma/migrations/*.sql
+database/src/generated/

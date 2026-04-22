@@ -1,4 +1,4 @@
-import { EvaluationConcept } from '@prisma/client';
+import { EvaluationConcept } from '@sistema-provas/database';
 
 export { EvaluationConcept };
 

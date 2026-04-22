@@ -1,6 +1,8 @@
 {
   "name": "@sistema-provas/database",
   "version": "0.1.0",
+  "main": "src/generated/client/index.js",
+  "types": "src/generated/client/index.d.ts",
   "private": true,
   "scripts": {
     "migrate:dev": "prisma migrate dev --schema=prisma/schema.prisma",

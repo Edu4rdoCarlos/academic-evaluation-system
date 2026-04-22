@@ -13,7 +13,7 @@ RUN npm ci
 COPY database ./database
 COPY backend ./backend
 
-RUN npm run prisma:generate --workspace=@sistema-provas/backend
+RUN npm run generate --workspace=@sistema-provas/database
 RUN npm run build --workspace=@sistema-provas/backend
 
 COPY start.sh ./
