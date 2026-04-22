@@ -7,6 +7,7 @@ import { GoalsModule } from './goals/goals.module';
 import { EvaluationsModule } from './evaluations/evaluations.module';
 import { EmailDigestModule } from './email-digest/email-digest.module';
 import { AuthModule } from './auth/auth.module';
+import { HealthController } from './health/health.controller';
 import { ApiKeyMiddleware } from './shared/middleware/api-key.middleware';
 
 @Module({
@@ -23,12 +24,16 @@ import { ApiKeyMiddleware } from './shared/middleware/api-key.middleware';
     EmailDigestModule,
     AuthModule,
   ],
+  controllers: [HealthController],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {
     consumer
       .apply(ApiKeyMiddleware)
-      .exclude({ path: 'auth/(.*)', method: RequestMethod.ALL })
+      .exclude(
+        { path: 'auth/(.*)', method: RequestMethod.ALL },
+        { path: 'health', method: RequestMethod.GET },
+      )
       .forRoutes('*');
   }
 }
