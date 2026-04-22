@@ -11,8 +11,16 @@ import { Class, ClassEnrollment } from '../models/class.model';
 export class ClassRepository implements IClassRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll(): Promise<Class[]> {
-    return this.prisma.class.findMany({ orderBy: [{ year: 'desc' }, { semester: 'desc' }] });
+  async findPaginated(page: number, perPage: number): Promise<{ items: Class[]; totalItems: number }> {
+    const [items, totalItems] = await this.prisma.$transaction([
+      this.prisma.class.findMany({
+        orderBy: [{ year: 'desc' }, { semester: 'desc' }],
+        skip: (page - 1) * perPage,
+        take: perPage,
+      }),
+      this.prisma.class.count(),
+    ]);
+    return { items, totalItems };
   }
 
   async findById(id: string): Promise<Class | null> {

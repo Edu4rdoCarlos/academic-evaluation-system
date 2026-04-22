@@ -13,7 +13,7 @@ export interface UpdateStudentData {
 }
 
 export interface IStudentRepository {
-  findAll(): Promise<Student[]>;
+  findPaginated(page: number, perPage: number): Promise<{ items: Student[]; totalItems: number }>;
   findById(id: string): Promise<Student | null>;
   findByCpf(cpf: string): Promise<Student | null>;
   create(data: CreateStudentData): Promise<Student>;

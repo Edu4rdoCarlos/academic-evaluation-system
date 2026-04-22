@@ -13,8 +13,8 @@ export class ClassesService {
     private readonly classRepository: IClassRepository,
   ) {}
 
-  listAll() {
-    return this.classRepository.findAll();
+  listPaginated(page: number, perPage: number) {
+    return this.classRepository.findPaginated(page, perPage);
   }
 
   findById(id: string) {

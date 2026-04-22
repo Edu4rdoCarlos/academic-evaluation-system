@@ -13,7 +13,7 @@ export interface UpdateClassData {
 }
 
 export interface IClassRepository {
-  findAll(): Promise<Class[]>;
+  findPaginated(page: number, perPage: number): Promise<{ items: Class[]; totalItems: number }>;
   findById(id: string): Promise<Class | null>;
   findWithStudents(id: string): Promise<(Class & { enrollments: ClassEnrollment[] }) | null>;
   create(data: CreateClassData): Promise<Class>;

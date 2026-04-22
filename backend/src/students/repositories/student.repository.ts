@@ -11,8 +11,16 @@ import { Student } from '../models/student.model';
 export class StudentRepository implements IStudentRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll(): Promise<Student[]> {
-    return this.prisma.student.findMany({ orderBy: { name: 'asc' } });
+  async findPaginated(page: number, perPage: number): Promise<{ items: Student[]; totalItems: number }> {
+    const [items, totalItems] = await this.prisma.$transaction([
+      this.prisma.student.findMany({
+        orderBy: { name: 'asc' },
+        skip: (page - 1) * perPage,
+        take: perPage,
+      }),
+      this.prisma.student.count(),
+    ]);
+    return { items, totalItems };
   }
 
   async findById(id: string): Promise<Student | null> {

@@ -14,8 +14,8 @@ export class StudentsService {
     private readonly studentRepository: IStudentRepository,
   ) {}
 
-  listAll(): Promise<Student[]> {
-    return this.studentRepository.findAll();
+  listPaginated(page: number, perPage: number) {
+    return this.studentRepository.findPaginated(page, perPage);
   }
 
   findById(id: string): Promise<Student | null> {
