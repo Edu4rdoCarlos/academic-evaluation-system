@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/prisma/prisma.service';
-import { IEmailDigestRepository } from './email-digest.repository.interface';
+import { IEmailDigestRepository, DigestWithDetails } from './email-digest.repository.interface';
 import { DailyEmailDigest, DailyEmailDigestItem } from '../models/email-digest.model';
 
 @Injectable()
@@ -26,6 +26,28 @@ export class EmailDigestRepository implements IEmailDigestRepository {
     return this.prisma.dailyEmailDigest.findMany({
       where: { status: 'pending' },
       include: { items: { include: { changeLog: true } } },
+    });
+  }
+
+  async findByIdWithDetails(digestId: string): Promise<DigestWithDetails> {
+    return this.prisma.dailyEmailDigest.findUniqueOrThrow({
+      where: { id: digestId },
+      select: {
+        id: true,
+        student: { select: { name: true, email: true } },
+        items: {
+          select: {
+            changeLog: {
+              select: {
+                oldConcept: true,
+                newConcept: true,
+                goal: { select: { name: true } },
+                class: { select: { topic: true } },
+              },
+            },
+          },
+        },
+      },
     });
   }
 
