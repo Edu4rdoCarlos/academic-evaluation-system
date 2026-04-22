@@ -7,9 +7,10 @@ import { createTestApp, cleanDatabase } from '../helpers/create-test-app';
 describe('EmailDigest (e2e)', () => {
   let app: INestApplication;
   let prisma: PrismaService;
+  let authToken: string;
 
   beforeAll(async () => {
-    ({ app, prisma } = await createTestApp());
+    ({ app, prisma, authToken } = await createTestApp());
   });
 
   beforeEach(async () => {
@@ -23,7 +24,9 @@ describe('EmailDigest (e2e)', () => {
 
   describe('GET /api/email-digest/pending', () => {
     it('returns empty list when no pending digests exist', async () => {
-      const res = await request(app.getHttpServer()).get('/api/email-digest/pending');
+      const res = await request(app.getHttpServer())
+        .get('/api/email-digest/pending')
+        .set('Authorization', `Bearer ${authToken}`);
 
       expect(res.status).toBe(200);
       expect(res.body).toMatchObject({ data: [] });
@@ -37,7 +40,9 @@ describe('EmailDigest (e2e)', () => {
         data: { studentId: student.id, digestDate: new Date(), status: 'pending' },
       });
 
-      const res = await request(app.getHttpServer()).get('/api/email-digest/pending');
+      const res = await request(app.getHttpServer())
+        .get('/api/email-digest/pending')
+        .set('Authorization', `Bearer ${authToken}`);
 
       expect(res.status).toBe(200);
       expect(res.body.data).toHaveLength(1);
@@ -57,7 +62,9 @@ describe('EmailDigest (e2e)', () => {
         },
       });
 
-      const res = await request(app.getHttpServer()).get('/api/email-digest/pending');
+      const res = await request(app.getHttpServer())
+        .get('/api/email-digest/pending')
+        .set('Authorization', `Bearer ${authToken}`);
 
       expect(res.status).toBe(200);
       expect(res.body.data).toHaveLength(0);
@@ -73,7 +80,9 @@ describe('EmailDigest (e2e)', () => {
         data: { studentId: student.id, digestDate: new Date(), status: 'pending' },
       });
 
-      const res = await request(app.getHttpServer()).post(`/api/email-digest/${digest.id}/send`);
+      const res = await request(app.getHttpServer())
+        .post(`/api/email-digest/${digest.id}/send`)
+        .set('Authorization', `Bearer ${authToken}`);
 
       expect(res.status).toBe(201);
       expect(res.body).toMatchObject({ data: { id: digest.id, status: 'sent' } });

@@ -7,9 +7,10 @@ import { createTestApp, cleanDatabase } from '../helpers/create-test-app';
 describe('Goals (e2e)', () => {
   let app: INestApplication;
   let prisma: PrismaService;
+  let authToken: string;
 
   beforeAll(async () => {
-    ({ app, prisma } = await createTestApp());
+    ({ app, prisma, authToken } = await createTestApp());
   });
 
   beforeEach(async () => {
@@ -23,7 +24,9 @@ describe('Goals (e2e)', () => {
 
   describe('GET /api/goals', () => {
     it('returns empty list when no goals exist', async () => {
-      const res = await request(app.getHttpServer()).get('/api/goals');
+      const res = await request(app.getHttpServer())
+        .get('/api/goals')
+        .set('Authorization', `Bearer ${authToken}`);
 
       expect(res.status).toBe(200);
       expect(res.body).toMatchObject({ data: [] });
@@ -34,7 +37,9 @@ describe('Goals (e2e)', () => {
         data: [{ name: 'Requisitos' }, { name: 'Testes' }],
       });
 
-      const res = await request(app.getHttpServer()).get('/api/goals');
+      const res = await request(app.getHttpServer())
+        .get('/api/goals')
+        .set('Authorization', `Bearer ${authToken}`);
 
       expect(res.status).toBe(200);
       expect(res.body.data).toHaveLength(2);
@@ -46,6 +51,7 @@ describe('Goals (e2e)', () => {
     it('creates a goal', async () => {
       const res = await request(app.getHttpServer())
         .post('/api/goals')
+        .set('Authorization', `Bearer ${authToken}`)
         .send({ name: 'Implementação' });
 
       expect(res.status).toBe(201);
@@ -57,7 +63,9 @@ describe('Goals (e2e)', () => {
     it('deletes a goal', async () => {
       const goal = await prisma.goal.create({ data: { name: 'Requisitos' } });
 
-      const res = await request(app.getHttpServer()).delete(`/api/goals/${goal.id}`);
+      const res = await request(app.getHttpServer())
+        .delete(`/api/goals/${goal.id}`)
+        .set('Authorization', `Bearer ${authToken}`);
 
       expect(res.status).toBe(200);
 

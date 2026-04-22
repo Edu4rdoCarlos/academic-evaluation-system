@@ -7,13 +7,14 @@ import { createTestApp, cleanDatabase } from '../helpers/create-test-app';
 describe('Evaluations (e2e)', () => {
   let app: INestApplication;
   let prisma: PrismaService;
+  let authToken: string;
 
   let classId: string;
   let studentId: string;
   let goalId: string;
 
   beforeAll(async () => {
-    ({ app, prisma } = await createTestApp());
+    ({ app, prisma, authToken } = await createTestApp());
   });
 
   beforeEach(async () => {
@@ -38,7 +39,9 @@ describe('Evaluations (e2e)', () => {
 
   describe('GET /api/evaluations/class/:classId', () => {
     it('returns empty list when no evaluations exist', async () => {
-      const res = await request(app.getHttpServer()).get(`/api/evaluations/class/${classId}`);
+      const res = await request(app.getHttpServer())
+        .get(`/api/evaluations/class/${classId}`)
+        .set('Authorization', `Bearer ${authToken}`);
 
       expect(res.status).toBe(200);
       expect(res.body).toMatchObject({ data: [] });
@@ -49,7 +52,9 @@ describe('Evaluations (e2e)', () => {
         data: { classId, studentId, goalId, concept: 'MA' },
       });
 
-      const res = await request(app.getHttpServer()).get(`/api/evaluations/class/${classId}`);
+      const res = await request(app.getHttpServer())
+        .get(`/api/evaluations/class/${classId}`)
+        .set('Authorization', `Bearer ${authToken}`);
 
       expect(res.status).toBe(200);
       expect(res.body.data).toHaveLength(1);
@@ -61,6 +66,7 @@ describe('Evaluations (e2e)', () => {
     it('creates an evaluation and returns wrapped data with changeLog', async () => {
       const res = await request(app.getHttpServer())
         .post('/api/evaluations')
+        .set('Authorization', `Bearer ${authToken}`)
         .send({ classId, studentId, goalId, concept: 'MPA' });
 
       expect(res.status).toBe(201);
@@ -77,6 +83,7 @@ describe('Evaluations (e2e)', () => {
 
       const res = await request(app.getHttpServer())
         .post('/api/evaluations')
+        .set('Authorization', `Bearer ${authToken}`)
         .send({ classId, studentId, goalId, concept: 'MA' });
 
       expect(res.status).toBe(201);

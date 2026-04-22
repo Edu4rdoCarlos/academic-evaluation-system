@@ -7,9 +7,10 @@ import { createTestApp, cleanDatabase } from '../helpers/create-test-app';
 describe('Classes (e2e)', () => {
   let app: INestApplication;
   let prisma: PrismaService;
+  let authToken: string;
 
   beforeAll(async () => {
-    ({ app, prisma } = await createTestApp());
+    ({ app, prisma, authToken } = await createTestApp());
   });
 
   beforeEach(async () => {
@@ -23,7 +24,9 @@ describe('Classes (e2e)', () => {
 
   describe('GET /api/classes', () => {
     it('returns paginated empty list', async () => {
-      const res = await request(app.getHttpServer()).get('/api/classes');
+      const res = await request(app.getHttpServer())
+        .get('/api/classes')
+        .set('Authorization', `Bearer ${authToken}`);
 
       expect(res.status).toBe(200);
       expect(res.body).toMatchObject({
@@ -40,7 +43,9 @@ describe('Classes (e2e)', () => {
         ],
       });
 
-      const res = await request(app.getHttpServer()).get('/api/classes');
+      const res = await request(app.getHttpServer())
+        .get('/api/classes')
+        .set('Authorization', `Bearer ${authToken}`);
 
       expect(res.status).toBe(200);
       expect(res.body.data).toHaveLength(2);
@@ -52,6 +57,7 @@ describe('Classes (e2e)', () => {
     it('creates a class', async () => {
       const res = await request(app.getHttpServer())
         .post('/api/classes')
+        .set('Authorization', `Bearer ${authToken}`)
         .send({ topic: 'LP1', year: 2024, semester: 1 });
 
       expect(res.status).toBe(201);
@@ -65,7 +71,9 @@ describe('Classes (e2e)', () => {
     it('returns class by id', async () => {
       const cls = await prisma.class.create({ data: { topic: 'LP1', year: 2024, semester: 1 } });
 
-      const res = await request(app.getHttpServer()).get(`/api/classes/${cls.id}`);
+      const res = await request(app.getHttpServer())
+        .get(`/api/classes/${cls.id}`)
+        .set('Authorization', `Bearer ${authToken}`);
 
       expect(res.status).toBe(200);
       expect(res.body).toMatchObject({ data: { id: cls.id, topic: 'LP1' } });
@@ -80,7 +88,9 @@ describe('Classes (e2e)', () => {
       });
       await prisma.classEnrollment.create({ data: { classId: cls.id, studentId: student.id } });
 
-      const res = await request(app.getHttpServer()).get(`/api/classes/${cls.id}/students`);
+      const res = await request(app.getHttpServer())
+        .get(`/api/classes/${cls.id}/students`)
+        .set('Authorization', `Bearer ${authToken}`);
 
       expect(res.status).toBe(200);
       expect(res.body.data.enrollments).toHaveLength(1);
@@ -97,6 +107,7 @@ describe('Classes (e2e)', () => {
 
       const res = await request(app.getHttpServer())
         .post(`/api/classes/${cls.id}/enrollments`)
+        .set('Authorization', `Bearer ${authToken}`)
         .send({ studentId: student.id });
 
       expect(res.status).toBe(201);
@@ -115,7 +126,8 @@ describe('Classes (e2e)', () => {
       await prisma.classEnrollment.create({ data: { classId: cls.id, studentId: student.id } });
 
       const res = await request(app.getHttpServer())
-        .delete(`/api/classes/${cls.id}/enrollments/${student.id}`);
+        .delete(`/api/classes/${cls.id}/enrollments/${student.id}`)
+        .set('Authorization', `Bearer ${authToken}`);
 
       expect(res.status).toBe(200);
 
@@ -132,6 +144,7 @@ describe('Classes (e2e)', () => {
 
       const res = await request(app.getHttpServer())
         .put(`/api/classes/${cls.id}`)
+        .set('Authorization', `Bearer ${authToken}`)
         .send({ topic: 'LP1 Updated' });
 
       expect(res.status).toBe(200);
@@ -143,7 +156,9 @@ describe('Classes (e2e)', () => {
     it('deletes a class', async () => {
       const cls = await prisma.class.create({ data: { topic: 'LP1', year: 2024, semester: 1 } });
 
-      const res = await request(app.getHttpServer()).delete(`/api/classes/${cls.id}`);
+      const res = await request(app.getHttpServer())
+        .delete(`/api/classes/${cls.id}`)
+        .set('Authorization', `Bearer ${authToken}`);
 
       expect(res.status).toBe(200);
 

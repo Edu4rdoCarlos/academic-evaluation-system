@@ -7,9 +7,10 @@ import { createTestApp, cleanDatabase } from '../helpers/create-test-app';
 describe('Students (e2e)', () => {
   let app: INestApplication;
   let prisma: PrismaService;
+  let authToken: string;
 
   beforeAll(async () => {
-    ({ app, prisma } = await createTestApp());
+    ({ app, prisma, authToken } = await createTestApp());
   });
 
   beforeEach(async () => {
@@ -23,7 +24,9 @@ describe('Students (e2e)', () => {
 
   describe('GET /api/students', () => {
     it('returns paginated empty list', async () => {
-      const res = await request(app.getHttpServer()).get('/api/students');
+      const res = await request(app.getHttpServer())
+        .get('/api/students')
+        .set('Authorization', `Bearer ${authToken}`);
 
       expect(res.status).toBe(200);
       expect(res.body).toMatchObject({
@@ -40,7 +43,9 @@ describe('Students (e2e)', () => {
         ],
       });
 
-      const res = await request(app.getHttpServer()).get('/api/students?page=1&perPage=10');
+      const res = await request(app.getHttpServer())
+        .get('/api/students?page=1&perPage=10')
+        .set('Authorization', `Bearer ${authToken}`);
 
       expect(res.status).toBe(200);
       expect(res.body.data).toHaveLength(2);
@@ -56,7 +61,9 @@ describe('Students (e2e)', () => {
         })),
       });
 
-      const res = await request(app.getHttpServer()).get('/api/students?page=2&perPage=2');
+      const res = await request(app.getHttpServer())
+        .get('/api/students?page=2&perPage=2')
+        .set('Authorization', `Bearer ${authToken}`);
 
       expect(res.status).toBe(200);
       expect(res.body.data).toHaveLength(2);
@@ -68,6 +75,7 @@ describe('Students (e2e)', () => {
     it('creates a student and returns wrapped data', async () => {
       const res = await request(app.getHttpServer())
         .post('/api/students')
+        .set('Authorization', `Bearer ${authToken}`)
         .send({ name: 'Alice', cpf: '11111111111', email: 'alice@test.com' });
 
       expect(res.status).toBe(201);
@@ -83,14 +91,18 @@ describe('Students (e2e)', () => {
         data: { name: 'Alice', cpf: '11111111111', email: 'alice@test.com' },
       });
 
-      const res = await request(app.getHttpServer()).get(`/api/students/${student.id}`);
+      const res = await request(app.getHttpServer())
+        .get(`/api/students/${student.id}`)
+        .set('Authorization', `Bearer ${authToken}`);
 
       expect(res.status).toBe(200);
       expect(res.body).toMatchObject({ data: { id: student.id, name: 'Alice' } });
     });
 
     it('returns data: null when student does not exist', async () => {
-      const res = await request(app.getHttpServer()).get('/api/students/00000000-0000-0000-0000-000000000000');
+      const res = await request(app.getHttpServer())
+        .get('/api/students/00000000-0000-0000-0000-000000000000')
+        .set('Authorization', `Bearer ${authToken}`);
 
       expect(res.status).toBe(200);
       expect(res.body).toMatchObject({ data: null });
@@ -105,6 +117,7 @@ describe('Students (e2e)', () => {
 
       const res = await request(app.getHttpServer())
         .put(`/api/students/${student.id}`)
+        .set('Authorization', `Bearer ${authToken}`)
         .send({ name: 'Alice Updated' });
 
       expect(res.status).toBe(200);
@@ -118,7 +131,9 @@ describe('Students (e2e)', () => {
         data: { name: 'Alice', cpf: '11111111111', email: 'alice@test.com' },
       });
 
-      const res = await request(app.getHttpServer()).delete(`/api/students/${student.id}`);
+      const res = await request(app.getHttpServer())
+        .delete(`/api/students/${student.id}`)
+        .set('Authorization', `Bearer ${authToken}`);
 
       expect(res.status).toBe(200);
 
