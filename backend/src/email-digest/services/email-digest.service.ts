@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { IEmailDigestRepository, EMAIL_DIGEST_REPOSITORY } from '../repositories/email-digest.repository.interface';
 import { EmailService } from '@/email/email.service';
-import { renderDigestEmail } from '@/infra/templates/digest-email.template';
+import { renderDigestEmail } from '@/email-digest/repositories/digest-email.template';
 
 @Injectable()
 export class EmailDigestService {
